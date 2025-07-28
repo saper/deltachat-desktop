@@ -78,7 +78,9 @@ function buildContextMenu(
       },
     },
     // Reply
-    {
+    // TODO also check `chat.canSend`, as with `showReply` in `Message.tsx`,
+    // and double-check other items.
+    !message.isInfo && {
       label: tx('reply_noun'),
       action: () => {
         setQuoteInDraft(message.id)
@@ -87,6 +89,7 @@ function buildContextMenu(
     },
     // Reply privately -> only show in groups, don't show on info messages or outgoing messages
     isGroup &&
+      !message.isInfo &&
       message.fromId > C.DC_CONTACT_ID_LAST_SPECIAL && {
         label: tx('reply_privately'),
         action: () => {

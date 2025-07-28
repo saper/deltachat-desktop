@@ -7,6 +7,7 @@
 ### Added
 
 ### Fixed
+- don't show "Reply" for info messages (e.g. "user A removed user B") #5337
 
 <a id="2_7_0"></a>
 

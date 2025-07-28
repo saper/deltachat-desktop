@@ -277,8 +277,12 @@ function buildContextMenu(
   const showCopyImage = !!message.file && message.viewType === 'Image'
   const showResend = message.sender.id === C.DC_CONTACT_ID_SELF
 
-  // Do not show "reply" in read-only chats
-  const showReply = chat.canSend
+  // Do not show "reply" in read-only chats, and for info messages.
+  // See
+  // - https://github.com/deltachat/deltachat-desktop/issues/5337
+  // - https://github.com/deltachat/deltachat-android/blob/52c01976821803fa2d8a177f93576fa4082ef5bd/src/main/java/org/thoughtcrime/securesms/ConversationFragment.java#L332C21-L332C30
+  // - https://github.com/deltachat/deltachat-android/blob/52c01976821803fa2d8a177f93576fa4082ef5bd/src/main/java/org/thoughtcrime/securesms/ConversationFragment.java#L366-L368
+  const showReply = chat.canSend && !message.isInfo
 
   // See https://github.com/deltachat/deltachat-desktop/issues/4695.
   const showEdit =
@@ -296,6 +300,7 @@ function buildContextMenu(
   const showReplyPrivately =
     (conversationType.chatType === C.DC_CHAT_TYPE_GROUP ||
       conversationType.chatType === C.DC_CHAT_TYPE_IN_BROADCAST) &&
+    !message.isInfo &&
     message.fromId > C.DC_CONTACT_ID_LAST_SPECIAL
 
   return [
@@ -329,8 +334,11 @@ function buildContextMenu(
     },
     { type: 'separator' },
     // Save Message
+    // For reference, the conditions when it's shown:
+    // https://github.com/deltachat/deltachat-android/blob/52c01976821803fa2d8a177f93576fa4082ef5bd/src/main/java/org/thoughtcrime/securesms/ConversationFragment.java#L342
     !chat.isSelfTalk &&
-      !isSavedMessage && {
+      !isSavedMessage &&
+      !message.isInfo && {
         label: tx('save'),
         action: () =>
           BackendRemote.rpc.saveMsgs(selectedAccountId(), [message.id]),
